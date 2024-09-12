@@ -129,7 +129,7 @@ void SensorAirspeedSim::Run()
 			device_id.devid_s.address = 0;
 			device_id.devid_s.devtype = DRV_DIFF_PRESS_DEVTYPE_SIM;
 
-			const float alt_amsl = gpos.alt;
+			const float alt_amsl = gpos.alt / 1000.0f; // mm to m
 			const float temperature_local = TEMPERATURE_MSL - LAPSE_RATE * alt_amsl;
 			const float density_ratio = powf(TEMPERATURE_MSL / temperature_local, 4.256f);
 			const float air_density = AIR_DENSITY_MSL / density_ratio;
@@ -144,7 +144,7 @@ void SensorAirspeedSim::Run()
 			// report.timestamp_sample = time;
 			differential_pressure.device_id = 1377548; // 1377548: DRV_DIFF_PRESS_DEVTYPE_SIM, BUS: 1, ADDR: 5, TYPE: SIMULATION
 			differential_pressure.differential_pressure_pa = (double)diff_pressure * 100.0; // hPa to Pa;
-			differential_pressure.temperature = temperature_local;
+			differential_pressure.temperature = temperature_local + ABSOLUTE_ZERO_C; // K to C
 			differential_pressure.timestamp = hrt_absolute_time();
 			_differential_pressure_pub.publish(differential_pressure);
 
