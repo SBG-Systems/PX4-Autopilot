@@ -66,7 +66,7 @@
 #define SBG_ESTIMATOR_ACCEL_ERROR		(1 << 11)	///< 11 - EKF has detected bad accelerometer data
 
 #define DEFAULT_CONFIG_PATH "/etc/extras/sbg_settings.json"
-#define OVERRIDE_CONFIG_PATH CONFIG_BOARD_ROOT_PATH DEFAULT_CONFIG_PATH
+#define OVERRIDE_CONFIG_PATH PX4_ROOTFSDIR DEFAULT_CONFIG_PATH
 #define NEED_REBOOT_STR "\"needReboot\":true"
 
 using matrix::Vector2f;
@@ -377,8 +377,7 @@ void SbgEcom::handleLogEkfNav(const SbgEComLogUnion *ref_sbg_data, void *user_ar
 	local_position.vxy_max = INFINITY;
 	local_position.vz_max = INFINITY;
 	local_position.hagl_min = INFINITY;
-	local_position.hagl_max_xy = INFINITY;
-	local_position.hagl_max_z = INFINITY;
+	local_position.hagl_max = INFINITY;
 
 	instance->_local_position_pub.publish(local_position);
 	perf_count(instance->_local_position_pub_interval_perf);
@@ -393,9 +392,6 @@ void SbgEcom::handleLogEkfNav(const SbgEComLogUnion *ref_sbg_data, void *user_ar
 	global_position.lon = longitude;
 	global_position.alt = altitude;
 	global_position.alt_ellipsoid = ref_sbg_data->ekfNavData.undulation;
-
-	global_position.lat_lon_valid = math::isFinite(latitude) && math::isFinite(longitude);
-	global_position.alt_valid = math::isFinite(altitude);
 
 	global_position.eph = sqrt(pow(ref_sbg_data->ekfNavData.positionStdDev[0], 2) +
 				   pow(ref_sbg_data->ekfNavData.positionStdDev[1], 2));
