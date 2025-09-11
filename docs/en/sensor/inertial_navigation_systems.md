@@ -6,6 +6,9 @@ However PX4 can also use some INS devices as either sources of raw data, or as a
 
 Systems that can be used in this way include:
 
+INS systems that can be used as a replacement for EKF2 in PX4:
+
+- [SBG Systems](../sensor/sbgecom.md): IMU/AHRS, GNSS/INS, Dual GNSS/INS systems that can be used as an external INS or as a source of raw sensor data.
 - [VectorNav](../sensor/vectornav.md): IMU/AHRS, GNSS/INS, Dual GNSS/INS systems that can be used as an external INS or as a source of raw sensor data.
 
 ## Glossary
