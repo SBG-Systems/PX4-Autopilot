@@ -852,6 +852,7 @@ void SbgEcom::send_config_file(SbgEComHandle *pHandle, const char *file_path)
 	int fd;
 	char *body = NULL;
 	struct stat s;
+	ssize_t bytes_read;
 
 	assert(pHandle);
 	assert(file_path);
@@ -867,12 +868,19 @@ void SbgEcom::send_config_file(SbgEComHandle *pHandle, const char *file_path)
 	body = (char *)malloc(s.st_size + 1);
 
 	if (!body) {
-		PX4_ERR("Failed to allocate memory (%ld) - %s", s.st_size + 1, strerror(get_errno()));
+		PX4_ERR("Failed to allocate memory (%ld) - %s", s.st_size + 1, strerror(errno));
 		close(fd);
 		return;
 	}
 
-	read(fd, body, s.st_size);
+	bytes_read = read(fd, body, s.st_size);
+
+	if (bytes_read != s.st_size) {
+		PX4_ERR("Failed to read config");
+		free(body);
+		return;
+	}
+
 	body[s.st_size] = '\0';
 
 	send_config(pHandle, body);
@@ -894,7 +902,7 @@ int SbgEcom::init()
 	error_code = sbgInterfaceSerialCreate(&_sbg_interface, _device_name, _baudrate);
 
 	if (error_code == SBG_NO_ERROR) {
-		PX4_INFO("Serial interface created successfully on port: %s, baudrate: %ld", _device_name, _baudrate);
+		PX4_INFO("Serial interface created successfully on port: %s, baudrate: %" PRIu32, _device_name, _baudrate);
 	}
 
 	pSerialHandle = (int *)_sbg_interface.handle;

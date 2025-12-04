@@ -41,14 +41,15 @@ add_subdirectory(sbgECom)
 add_dependencies(sbgECom prebuild_targets)
 
 target_compile_options(sbgECom
-        PRIVATE
-        -Wno-format
-        -Wno-format-security
-        -Wno-bad-function-cast
-        -Wno-double-promotion
-        -Wno-type-limits
-        -Wno-maybe-uninitialized
-        -Wno-float-equal
+	PRIVATE
+	-Wno-format
+	-Wno-format-security
+	-Wno-bad-function-cast
+	-Wno-double-promotion
+	-Wno-type-limits
+	-Wno-maybe-uninitialized
+	-Wno-float-equal
+	-Wno-logical-op
 )
 
 if("${PX4_PLATFORM}" MATCHES "nuttx")
