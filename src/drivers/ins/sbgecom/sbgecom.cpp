@@ -47,6 +47,10 @@
 #include <sys/stat.h>
 #include <termios.h>
 
+#ifdef __linux__
+#include <linux/serial.h>
+#endif
+
 #define DEFAULT_DEVNAME "/dev/ttyS0"
 
 #define SBG_MODE_SENSOR 0
@@ -924,6 +928,27 @@ int SbgEcom::init()
 	} else {
 		error_code = SBG_ERROR;
 	}
+
+#ifdef __linux__
+	// Attempt to enable low latency mode on the serial port.
+	// This reduces buffering delays in the tty layer which can improve
+	// responsiveness for high-rate devices like the SBG IMU.
+	struct serial_struct serinfo{};
+
+	if (ioctl((*pSerialHandle), TIOCGSERIAL, &serinfo) == 0) {
+
+		serinfo.flags |= ASYNC_LOW_LATENCY;
+
+		if (ioctl((*pSerialHandle), TIOCSSERIAL, &serinfo) == 0) {
+			PX4_INFO("Enabled ASYNC_LOW_LATENCY on %s", _device_name);
+		} else {
+			PX4_WARN("Failed to set ASYNC_LOW_LATENCY on %s: %s", _device_name, strerror(errno));
+		}
+
+	} else {
+		PX4_WARN("Failed to get serial info for %s: %s", _device_name, strerror(errno));
+	}
+#endif
 
 	error_code = sbgEComInit(&_com_handle, &_sbg_interface);
 	// Increase sbgECom timeout for the initialization
